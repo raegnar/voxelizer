@@ -17,10 +17,13 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/render/render_files.cmake)
 #
 set(SOURCE_FILES ${RENDER_FILES}
         src/Main.cpp
+        src/IsoVoxels.cpp
+        src/VBOCube.cpp
+        src/VoxelBase.cpp
         src/VoxelizerApp.cpp
         src/VoxelizerApp.h
-        src/VoxelizerAsset.h
-        src/VoxelizerAsset.cpp)
+        src/VoxelAsset.h
+        src/VoxelAsset.cpp)
 
 #
 # Link Directories

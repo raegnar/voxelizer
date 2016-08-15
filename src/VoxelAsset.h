@@ -1,5 +1,5 @@
 //*****************************************************************************
-//VoxelizerAsset.h*****************************************************************
+//VoxelAsset.h*****************************************************************
 //*****************************************************************************
 
 #pragma once
@@ -23,7 +23,7 @@ using namespace gl;
 
 typedef AssetBufferObjects AssetImpl;
 
-class VoxelizerAsset : public AssetImpl
+class VoxelAsset : public AssetImpl
 {
 public:
 	quatf q;
@@ -41,9 +41,9 @@ private:
 public:
 
 	//Constructor
-	VoxelizerAsset();
-	VoxelizerAsset(const string &);
-	~VoxelizerAsset();
+	VoxelAsset();
+	VoxelAsset(const string &);
+	~VoxelAsset();
 
 public:
 

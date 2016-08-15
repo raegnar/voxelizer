@@ -13,13 +13,18 @@
 #include <render/overlay.h>
 #include <render/capture.h>
 
+
+#include "VoxelBase.h"
+
 // Predeclarations
-class VoxelizerAsset;
+class VoxelAsset;
 
 //Namespaces
 using namespace std;
 using namespace render;
 using namespace render::capture;
+
+typedef VoxelBase VoxelStore;
 
 class VoxelizerApp : public App
 {
@@ -40,6 +45,8 @@ private:
 	TextureCapture offscreen_frame;
 
 
+	VoxelStore *voxels;
+
 
 
 
@@ -51,7 +58,7 @@ private:
 
 	ScreenOverlay *screenOverlay;
 
-	VoxelizerAsset *asset;
+	VoxelAsset *asset;
 
 	//Camera
 	gl::Camera camera;

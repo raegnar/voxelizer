@@ -6,7 +6,7 @@
 #include "VoxelizerApp.h"
 
 // Project Includes
-#include "VoxelizerAsset.h"
+#include "VoxelAsset.h"
 
 //Render Library Includes
 #include <render/imgui.h>
@@ -66,7 +66,7 @@ VoxelizerApp::VoxelizerApp(string title, int width, int height, const std::vecto
 
 	glGenVertexArrays(1, &screenVAO);
 
-	asset = new VoxelizerAsset("models/crytek-sponza/sponza.obj");
+	asset = new VoxelAsset("models/crytek-sponza/sponza.obj");
 
 	defaultShader.load(VertFile("./shaders/default.vert"), FragFile("./shaders/default.frag"));
 
@@ -336,8 +336,8 @@ void VoxelizerApp::renderIMGUI()
 //	}
 
 
-	imgui::DragFloat3("EYE", &(camera.pos()).x, 0.01f);
-	imgui::DragFloat3("DIR", &(camera.dir()).x, 0.01f);
+	imgui::DragFloat3("EYE", &(camera._pos.x), 0.01f);
+	imgui::DragFloat3("DIR", &(camera._dir.x), 0.01f);
 
 	imgui::DragFloat("Near Plane", &(camera.near_plane), 0.01f);
 	imgui::DragFloat("Far Plane",  &(camera.far_plane),  0.01f);
@@ -368,7 +368,7 @@ void VoxelizerApp::renderIMGUI()
 
 				if(asset) delete asset;
 
-				asset = new VoxelizerAsset(selectedModel);
+				asset = new VoxelAsset(selectedModel);
 			}
 		}
 		imgui::EndPopup();

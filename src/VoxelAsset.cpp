@@ -1,9 +1,9 @@
 //*****************************************************************************
-//VoxelizerAsset.cpp***************************************************************
+//VoxelAsset.cpp***************************************************************
 //*****************************************************************************
 
 //Header Include
-#include "VoxelizerAsset.h"
+#include "VoxelAsset.h"
 
 //Standard Library Includes
 #include <sstream>
@@ -12,19 +12,19 @@
 //*****************************************************************************
 //Constructor******************************************************************
 //*****************************************************************************
-VoxelizerAsset::VoxelizerAsset() : AssetImpl()
+VoxelAsset::VoxelAsset() : AssetImpl()
 {
 	init();
 }
 //----------------------------------------------------------------------------------
-VoxelizerAsset::VoxelizerAsset(const string &filename) : AssetImpl()
+VoxelAsset::VoxelAsset(const string &filename) : AssetImpl()
 {
 	this->load(filename);
 
 	init();
 }
 //----------------------------------------------------------------------------------
-void VoxelizerAsset::init()
+void VoxelAsset::init()
 {
 	scale = 1.0f;
 
@@ -41,13 +41,13 @@ void VoxelizerAsset::init()
 //*****************************************************************************
 //Destructor*******************************************************************
 //*****************************************************************************
-VoxelizerAsset::~VoxelizerAsset()
+VoxelAsset::~VoxelAsset()
 {
 }
 //*****************************************************************************
 //Load*************************************************************************
 //*****************************************************************************
-void VoxelizerAsset::load(const string &filename)
+void VoxelAsset::load(const string &filename)
 {
 	AssetImpl::load(filename);
 	this->normalize();
@@ -55,7 +55,7 @@ void VoxelizerAsset::load(const string &filename)
 //*****************************************************************************
 //Update***********************************************************************
 //*****************************************************************************
-void VoxelizerAsset::update()
+void VoxelAsset::update()
 {
 	mat4f scaleMatrix;
 	scaleMatrix.scale_by(vec3f(scale,scale,scale));
@@ -63,7 +63,7 @@ void VoxelizerAsset::update()
 	modelMatrix =  scaleMatrix * q.matrix() * transform;
 }
 
-void VoxelizerAsset::render(const mat4f &projMatrix,
+void VoxelAsset::render(const mat4f &projMatrix,
 							const mat4f &viewMatrix,
 							const mat4f &modelMatrix)
 {
