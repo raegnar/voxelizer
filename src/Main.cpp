@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 		args.push_back(string(argv[i]));
 	}
 
-	VoxelizerApp rasterApp("Multirate", 1280, 720, args);
+	VoxelizerApp rasterApp("Voxelizer", 1280, 720, args);
 	rasterApp.run();
 
 	return 0;

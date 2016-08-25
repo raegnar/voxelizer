@@ -1,0 +1,33 @@
+//*****************************************************************************
+//IsoCopyComponents.comp*******************************************************
+//*****************************************************************************
+
+#version 430
+
+//uniform usampler3D currLevel;
+layout(r32f,    binding = 0) uniform  image3D VoxelsR;
+layout(r32f,    binding = 1) uniform  image3D VoxelsG;
+layout(r32f,    binding = 2) uniform  image3D VoxelsB;
+layout(r32f,    binding = 3) uniform  image3D VoxelsA;
+layout(r32ui,   binding = 4) uniform uimage3D Count;
+layout(rgba32f, binding = 5) uniform  image3D Voxels;
+
+
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+
+void main()
+{
+	// Indices of the next level (the smaller level)
+	ivec3 coord = ivec3(gl_GlobalInvocationID);
+
+	vec4 color;
+
+	float invCount = 1.0f / float(imageLoad(Count, coord).x);
+	color.r = imageLoad(VoxelsR, coord).x * invCount;
+	color.g = imageLoad(VoxelsG, coord).x * invCount;
+	color.b = imageLoad(VoxelsB, coord).x * invCount;
+	color.a = imageLoad(VoxelsA, coord).x * invCount;
+
+	imageStore(Voxels, coord, color);
+}
+
