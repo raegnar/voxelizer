@@ -134,8 +134,8 @@ public:
 template<class TexTarget, class TexType, class IntFormat, class PixFormat>
 TextureT<TexTarget, TexType, IntFormat, PixFormat>::TextureT() : Texture()
 {
-	min_filter = GL_LINEAR;	//GL_NEAREST;
-	mag_filter = GL_LINEAR;	//GL_NEAREST;
+	min_filter = GL_LINEAR_MIPMAP_LINEAR;	//GL_NEAREST;
+	mag_filter = GL_LINEAR_MIPMAP_LINEAR;	//GL_NEAREST;
 }
 //******************************************************************************
 //Bind**************************************************************************

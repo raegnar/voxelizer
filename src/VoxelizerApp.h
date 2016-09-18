@@ -38,30 +38,11 @@ private:
 	typedef texture::Texture2D<float,   texture::depth32f, texture::depth> DepthTex;
 	typedef texture::Texture2D<GLubyte, texture::rgb,      texture::rgb  > tex2ub;
 
-	tex2f_msaa    *offscreen_rgbaTex;	// screen texture
-	idTex_msaa    *offscreen_idTex;
-	DepthTex_msaa *offscreen_depthTex;
-
-	TextureCapture offscreen_frame;
-
-
-	VoxelStore *voxels;
-
-
-
-
 	tex2f_msaa    *screenTex;	// screen texture
 	idTex_msaa    *idTex;
 	DepthTex_msaa *depthTex;
 
 	tex2ub *screenDisplayTex;
-
-	ScreenOverlay *screenOverlay;
-
-	VoxelAsset *asset;
-
-	//Camera
-	gl::Camera camera;
 
 	string selectedModel;
 	string modelDir;
@@ -74,22 +55,90 @@ private:
 
 	ShaderProgram screenOverlayShader;
 
-	bool dumpOffscreenFlag   = false;
-
-	bool showDepth = false;
-
-	int msaaSamples = 1;
-
-	int xResMultipler = 2;
-	int yResMultipler = 2;
-
 	TextureCapture frame;
 
 	GLuint screenVAO;
 
-	bool fixedCam;
 
 	void renderIMGUI();
+
+
+    enum VoxelizationMethod
+    {
+        fragVoxelize   = 0,
+        triVoxelize    = 1,
+        hybridVoxelize = 2,
+    };
+
+    VoxelizationMethod voxelizationMethod;
+
+    enum VizMethod
+    {
+        defaultRender = 0,
+        cubeCase      = 1,
+        sphereCast    = 2,
+    };
+
+
+
+
+	VoxelAsset *asset  = NULL;
+	VoxelStore *voxels = NULL;
+
+	ScreenOverlay *screenOverlay;
+
+	//Camera
+	gl::Camera camera;
+
+	mat4f transform;
+
+	int   pow = 7;
+
+
+	bool  slice;
+	float sliceLevel;
+	float sliceLayer;
+	bool  cubeCast;
+	bool  renderVoxels;
+	bool  clearVoxels;
+	bool  showTimingData;
+	bool  showDiffuse;
+	bool  showVoxPos;
+	bool  showSpecular;
+	bool  showBumpNormal;
+	bool  showSurfNormal;
+	bool  showDepth = false;
+
+	bool fixedCam;
+
+	bool showRSMdirectLight;
+	bool showRSMposition;
+	bool showRSMnormal;
+	bool showRSMdepth;
+
+
+	bool hideUI;
+	bool showSceneUI;
+
+//	CheckBox *timingData;
+
+	//VoxelMethods
+	bool persistentVoxelize;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 public:
 
@@ -105,9 +154,6 @@ public:
 	void mousemove();
 
 	void resize();
-
-	void dumpFrame();
-	void dumpOffscreen();
 
 
 	mat4f modelMat;

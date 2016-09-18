@@ -28,7 +28,9 @@ VoxelBase::VoxelBase( int pow, int screenW, int screenH )
 //	overlay = new Overlay();
 
 //	defaultShader.load(VertFile("./shaders/DefaultRender.vert"), FragFile("./shaders/DefaultRender.frag"));
-	defaultShader.load(VertFile("./shaders/DefaultRender.vert"), GeomFile("./shaders/DefaultRender.geom"), FragFile("./shaders/DefaultRender.frag"));
+	defaultShader.load(VertFile("./shaders/DefaultRender.vert"),
+                       GeomFile("./shaders/DefaultRender.geom"),
+                       FragFile("./shaders/DefaultRender.frag"));
 
 	diffuseTex    = new tex2f(screenW, screenH);
 	specularTex   = new tex2f(screenW, screenH);

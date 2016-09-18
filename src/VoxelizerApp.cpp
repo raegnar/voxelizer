@@ -12,12 +12,13 @@
 #include <render/imgui.h>
 #include <render/file.h>
 
+
+#include "IsoVoxels.h"
+
 //Standard Library Includes
 #include <numeric>
 #include <sstream>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
 
 //Namespaces
 using namespace std;
@@ -47,15 +48,7 @@ VoxelizerApp::VoxelizerApp(string title, int width, int height, const std::vecto
 	frame.attach(idTex);
 	frame.attachDepth(depthTex);
 
-
-	offscreen_rgbaTex  = new    tex2f_msaa(App::width()*xResMultipler, App::height()*yResMultipler/*, msaaSamples*/);	// screen texture
-	offscreen_idTex    = new    idTex_msaa(App::width()*xResMultipler, App::height()*yResMultipler/*, msaaSamples*/);
-	offscreen_depthTex = new DepthTex_msaa(App::width()*xResMultipler, App::height()*yResMultipler/*, msaaSamples*/);
-
-	offscreen_frame.attach(offscreen_rgbaTex);
-	offscreen_frame.attach(offscreen_idTex);
-	offscreen_frame.attachDepth(offscreen_depthTex);
-
+    voxels = new IsoVoxels(pow, width, height);
 
 
 	modelMat.scale_by(vec3f(0.75f));
@@ -144,36 +137,29 @@ void VoxelizerApp::render()
 	}
 	frame.end();
 
-	if(dumpOffscreenFlag)
-	{
-		camera.setViewport(App::width()*xResMultipler, App::height()*yResMultipler);
-		camera.set_matrices();
-		camera.render();
-
-		// render offscreen before dumping textures
-		offscreen_frame.begin();
-		{
-			asset->render(camera.proj_mat, camera.view_mat, mat4f());
-		}
-		offscreen_frame.end();
-
-		dumpOffscreen();
-
-		dumpOffscreenFlag = false;
-
-		camera.setViewport(App::width(), App::height());
-		camera.set_matrices();
-		camera.render();
-	}
-
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
 
+    if(voxelizationMethod == fragVoxelize)
+    {
+        voxels->voxelize(asset, camera);
+    }
+    if(voxelizationMethod == hybridVoxelize)
+    {
+        voxels->hybridVoxelize(asset, camera);
+    }
+    if(voxelizationMethod == persistentVoxelize)
+    {
+        voxels->persistentVoxelize(asset, camera);
+    }
 
 
-	if(showDepth)
+
+
+
+    if(showDepth)
 	{
 		screenOverlay->render(idTex);
 	}
@@ -235,10 +221,6 @@ void VoxelizerApp::update()
 		if (keyDown(Key::E))		{ camera.strafe_right(dt, modifier*.01f); }
 		if (keyDown(Key::P))		initCam();
 	}
-	if (keyDown(Key::D))
-	{
-		dumpFrame();
-	}
 
 	if (keyDown(Key::SPACE))
 	{
@@ -274,6 +256,9 @@ void VoxelizerApp::initCam()
 
 void VoxelizerApp::renderIMGUI()
 {
+    //Set the viewport size
+    glViewport(0, 0, w, h);
+
 	imgui::SetNextWindowPos(ImVec2(5, 5), ImGuiSetCond_FirstUseEver);
 
 	ImGui::SetNextWindowPos(ImVec2(10,10));
@@ -290,7 +275,18 @@ void VoxelizerApp::renderIMGUI()
 	imgui::Begin("Voxelizer");
 
 
-	imgui::Text("On  Screen Res %i x %i", App::width(), App::height());
+    if(imgui::SliderInt("pow", &pow, 0, 9))
+    {
+        //change voxel dimensions
+    }
+
+
+
+
+
+
+
+    imgui::Text("On  Screen Res %i x %i", App::width(), App::height());
 
 
 	const char* resMultiples[] = { "1", "2", "4", };
@@ -303,27 +299,18 @@ void VoxelizerApp::renderIMGUI()
 	resChanged = imgui::Combo("xRes Mul", &xResIndex, resMultiples, IM_ARRAYSIZE(resMultiples)) || resChanged;
 	resChanged = imgui::Combo("yRes Mul", &yResIndex, resMultiples, IM_ARRAYSIZE(resMultiples)) || resChanged;
 
-	xResMultipler = pow(2, xResIndex);
-	yResMultipler = pow(2, yResIndex);
-
-	imgui::Text("Off Screen Res %i x %i", App::width()*xResMultipler, App::height()*yResMultipler);
-
-
 	imgui::Separator();
 
 	imgui::Separator();
 
 
-	dumpOffscreenFlag = imgui::Button("Dump Offscreen");
+    if(imgui::CollapsingHeader("Voxel Type"))
+    {
 
-	if(imgui::Button("Dump Frame"))
-	{
-		dumpFrame();
-	}
+    }
 
 
-
-	imgui::Checkbox("Show Depth", &showDepth);
+        imgui::Checkbox("Show Depth", &showDepth);
 
 
 
@@ -377,20 +364,13 @@ void VoxelizerApp::renderIMGUI()
 
 	imgui::Separator();
 
+    imgui::Text("Voxelization Method");
 
-	if(imgui::Button("Projection"))	imgui::OpenPopup("Projection");
-	ImGui::SameLine();
+    imgui::Separator();
 
-	if(imgui::BeginPopup("Projection"))
-	{
-		if(imgui::Selectable("Linear"))			{ }
-		if(imgui::Selectable("Cos-Sphere"))		{ }
-		if(imgui::Selectable("Fish-Eye (1)"))	{ }
-		if(imgui::Selectable("Fish-Eye (2)"))	{ }
-		if(imgui::Selectable("Lambert"))		{ }
-
-		imgui::EndPopup();
-	}
+    imgui::RadioButton("Frag-Voxelize",  (int *)&voxelizationMethod, fragVoxelize);
+    imgui::RadioButton("Tri-Voxelize",   (int *)&voxelizationMethod, triVoxelize);
+    imgui::RadioButton("Hybrid-Voxelize",(int *)&voxelizationMethod, hybridVoxelize);
 
 	imgui::Separator();
 
@@ -400,32 +380,3 @@ void VoxelizerApp::renderIMGUI()
 
 }
 
-
-void VoxelizerApp::dumpFrame()
-{
-	GLubyte *screenData = screenTex->image();
-	stbi_write_tga("FrameRGBA.tga", screenTex->w, screenTex->h, screenTex->getChannels(),
-				   (void *) screenData);
-	delete[] screenData;
-
-	GLubyte *idData = (GLubyte *)idTex->image();
-														// Not ID Tex deliberately
-	stbi_write_tga("FrameID.tga", screenTex->w, screenTex->h, screenTex->getChannels(),
-				   (void *) idData);
-
-	delete[] idData;
-}
-
-void VoxelizerApp::dumpOffscreen()
-{
-	GLubyte *screenData = offscreen_rgbaTex->image();
-	stbi_write_tga("OffscreenRGBA.tga", offscreen_rgbaTex->w, offscreen_rgbaTex->h, offscreen_rgbaTex->getChannels(),
-				   (void *) screenData);
-	delete[] screenData;
-
-	GLuint *idData = offscreen_idTex->image();									// Not ID Tex deliberately
-	stbi_write_tga("OffscreenID.tga", offscreen_idTex->w, offscreen_idTex->h, offscreen_rgbaTex->getChannels(),
-				   (void *) screenData);
-
-	delete[] idData;
-}

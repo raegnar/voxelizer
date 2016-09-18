@@ -108,7 +108,7 @@ void imageAtomicAverageRGBA8Count(layout(r32ui) restrict volatile uimage3D voxel
 		next = curr+1;
 	}
 
-	average = unpackUnorm4x8(imageLoad(voxels, coord));
+	average = unpackUnorm4x8(imageLoad(voxels, coord).x);
 	average = (average*curr + color) / float(next);
 	imageStore(voxels, coord, uvec4(packUnorm4x8(average)));
 
@@ -134,7 +134,7 @@ void imageAtomicAverageRGBA8Count2(layout(r32ui) restrict volatile uimage3D voxe
 	}
 	while(isLockAvailable == 0);
 
-	average = unpackUnorm4x8(imageLoad(voxels, coord));
+	average = unpackUnorm4x8(imageLoad(voxels, coord).x);
 	average = (average*count + color) / float(count+1);
 	imageStore(voxels, coord, uvec4(packUnorm4x8(average)));
 
